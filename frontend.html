@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Data Management & Risk Prediction</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: bold;
+        }
+        
+        .tab-button:hover {
+            background: #f0f0f0;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #764ba2;
+        }
+        
+        button.danger {
+            background: #e74c3c;
+        }
+        
+        button.danger:hover {
+            background: #c0392b;
+        }
+        
+        button.secondary {
+            background: #95a5a6;
+        }
+        
+        button.secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .field-config-item {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .field-info {
+            flex: 1;
+        }
+        
+        .field-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .field-type {
+            color: #667eea;
+            font-size: 0.9em;
+        }
+        
+        .machine-record {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .record-field {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+        
+        .record-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .record-value {
+            color: #333;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .prediction-result {
+            background: #e8f4f8;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .result-label {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .risk-low { color: #27ae60; font-weight: bold; font-size: 1.2em; }
+        .risk-medium { color: #f39c12; font-weight: bold; font-size: 1.2em; }
+        .risk-high { color: #e74c3c; font-weight: bold; font-size: 1.2em; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab-button {
+                flex: 1 0 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        const API_URL = 'http://localhost:8000/api';
+        
+        function App() {
+            const [activeTab, setActiveTab] = useState('fields');
+            const [fields, setFields] = useState([]);
+            const [machines, setMachines] = useState([]);
+            const [message, setMessage] = useState('');
+            const [messageType, setMessageType] = useState('');
+            
+            // Load initial data
+            useEffect(() => {
+                loadFields();
+                loadMachines();
+            }, []);
+            
+            const loadFields = async () => {
+                try {
+                    const response = await fetch(`${API_URL}/fields`);
+                    const data = await response.json();
+                    setFields(data);
+                } catch (error) {
+                    showMessage('Error loading fields: ' + error.message, 'error');
+                }
+            };
+            
+            const loadMachines = async () => {
+                try {
+                    const response = await fetch(`${API_URL}/machines`);
+                    const data = await response.json();
+                    setMachines(data);
+                } catch (error) {
+                    showMessage('Error loading machines: ' + error.message, 'error');
+                }
+            };
+            
+            const showMessage = (msg, type) => {
+                setMessage(msg);
+                setMessageType(type);
+                setTimeout(() => setMessage(''), 5000);
+            };
+            
+            return (
+                <div className="container">
+                    <header>
+                        <h1>🏭 Machine Data Management</h1>
+                        <p>Risk Prediction & Dynamic Field Configuration</p>
+                    </header>
+                    
+                    <div className="tabs">
+                        <button className={`tab-button ${activeTab === 'fields' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('fields')}>
+                            ⚙️ Field Configuration
+                        </button>
+                        <button className={`tab-button ${activeTab === 'machines' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('machines')}>
+                            🤖 Machine Records
+                        </button>
+                        <button className={`tab-button ${activeTab === 'predict' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('predict')}>
+                            📊 Risk Prediction
+                        </button>
+                    </div>
+                    
+                    <div className="content">
+                        {message && <div className={`message ${messageType}`}>{message}</div>}
+                        
+                        {activeTab === 'fields' && (
+                            <FieldsTab fields={fields} onFieldsChange={loadFields} showMessage={showMessage} />
+                        )}
+                        
+                        {activeTab === 'machines' && (
+                            <MachinesTab fields={fields} machines={machines} onMachinesChange={loadMachines} showMessage={showMessage} />
+                        )}
+                        
+                        {activeTab === 'predict' && (
+                            <PredictTab machines={machines} fields={fields} showMessage={showMessage} />
+                        )}
+                    </div>
+                </div>
+            );
+        }
+        
+        function FieldsTab({ fields, onFieldsChange, showMessage }) {
+            const [newField, setNewField] = useState({
+                field_name: '',
+                field_type: 'Text',
+                is_required: true,
+                dropdown_options: ''
+            });
+            
+            const handleAddField = async (e) => {
+                e.preventDefault();
+                
+                if (!newField.field_name.trim()) {
+                    showMessage('Field name is required', 'error');
+                    return;
+                }
+                
+                try {
+                    const fieldData = {
+                        field_name: newField.field_name,
+                        field_type: newField.field_type,
+                        is_required: newField.is_required,
+                        dropdown_options: newField.field_type === 'Dropdown' 
+                            ? newField.dropdown_options.split(',').map(o => o.trim())
+                            : []
+                    };
+                    
+                    const response = await fetch(`${API_URL}/fields`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(fieldData)
+                    });
+                    
+                    if (response.ok) {
+                        showMessage('Field added successfully!', 'success');
+                        setNewField({ field_name: '', field_type: 'Text', is_required: true, dropdown_options: '' });
+                        onFieldsChange();
+                    } else {
+                        showMessage('Error adding field', 'error');
+                    }
+                } catch (error) {
+                    showMessage('Error: ' + error.message, 'error');
+                }
+            };
+            
+            const handleDeleteField = async (fieldId) => {
+                try {
+                    await fetch(`${API_URL}/fields/${fieldId}`, { method: 'DELETE' });
+                    showMessage('Field deleted!', 'success');
+                    onFieldsChange();
+                } catch (error) {
+                    showMessage('Error deleting field: ' + error.message, 'error');
+                }
+            };
+            
+            return (
+                <div>
+                    <h2>⚙️ Configure Machine Fields</h2>
+                    
+                    <div className="card">
+                        <h3>Add New Field</h3>
+                        <form onSubmit={handleAddField}>
+                            <div className="grid">
+                                <div className="form-group">
+                                    <label>Field Name *</label>
+                                    <input type="text" 
+                                           value={newField.field_name}
+                                           onChange={(e) => setNewField({...newField, field_name: e.target.value})}
+                                           placeholder="e.g., Humidity" />
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label>Field Type</label>
+                                    <select value={newField.field_type}
+                                            onChange={(e) => setNewField({...newField, field_type: e.target.value})}>
+                                        <option>Text</option>
+                                        <option>Number</option>
+                                        <option>Dropdown</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            {newField.field_type === 'Dropdown' && (
+                                <div className="form-group">
+                                    <label>Dropdown Options (comma-separated)</label>
+                                    <input type="text" 
+                                           value={newField.dropdown_options}
+                                           onChange={(e) => setNewField({...newField, dropdown_options: e.target.value})}
+                                           placeholder="e.g., Option1, Option2, Option3" />
+                                </div>
+                            )}
+                            
+                            <div className="form-group">
+                                <label>
+                                    <input type="checkbox" 
+                                           checked={newField.is_required}
+                                           onChange={(e) => setNewField({...newField, is_required: e.target.checked})} />
+                                    Required Field
+                                </label>
+                            </div>
+                            
+                            <button type="submit">+ Add Field</button>
+                        </form>
+                    </div>
+                    
+                    <h3 style={{marginTop: '30px', marginBottom: '15px'}}>Current Fields</h3>
+                    {fields.map(field => (
+                        <div key={field.id} className="field-config-item">
+                            <div className="field-info">
+                                <div className="field-name">{field.field_name}</div>
+                                <div className="field-type">
+                                    Type: {field.field_type} 
+                                    {field.is_required ? ' (Required)' : ' (Optional)'}
+                                </div>
+                                {field.dropdown_options.length > 0 && (
+                                    <div className="field-type">Options: {field.dropdown_options.join(', ')}</div>
+                                )}
+                            </div>
+                            <button onClick={() => handleDeleteField(field.id)} className="danger">Delete</button>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+        
+        function MachinesTab({ fields, machines, onMachinesChange, showMessage }) {
+            const [isCreating, setIsCreating] = useState(false);
+            const [editingId, setEditingId] = useState(null);
+            const [formData, setFormData] = useState({});
+            
+            const handleCreateNew = () => {
+                setIsCreating(true);
+                setEditingId(null);
+                setFormData({});
+            };
+            
+            const handleEdit = (machine) => {
+                setEditingId(machine.id);
+                setIsCreating(false);
+                setFormData(machine.data);
+            };
+            
+            const handleSave = async () => {
+                try {
+                    const url = editingId 
+                        ? `${API_URL}/machines/${editingId}`
+                        : `${API_URL}/machines`;
+                    
+                    const method = editingId ? 'PUT' : 'POST';
+                    
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    if (response.ok) {
+                        showMessage(editingId ? 'Machine updated!' : 'Machine created!', 'success');
+                        setIsCreating(false);
+                        setEditingId(null);
+                        setFormData({});
+                        onMachinesChange();
+                    }
+                } catch (error) {
+                    showMessage('Error: ' + error.message, 'error');
+                }
+            };
+            
+            const handleDelete = async (id) => {
+                if (confirm('Are you sure?')) {
+                    try {
+                        await fetch(`${API_URL}/machines/${id}`, { method: 'DELETE' });
+                        showMessage('Machine deleted!', 'success');
+                        onMachinesChange();
+                    } catch (error) {
+                        showMessage('Error: ' + error.message, 'error');
+                    }
+                }
+            };
+            
+            return (
+                <div>
+                    <h2>🤖 Machine Records</h2>
+                    <button onClick={handleCreateNew} style={{marginBottom: '20px'}}>+ New Machine</button>
+                    
+                    {(isCreating || editingId) && (
+                        <div className="card">
+                            <h3>{editingId ? 'Edit Machine' : 'Create New Machine'}</h3>
+                            <div className="grid">
+                                {fields.map(field => (
+                                    <div key={field.id} className="form-group">
+                                        <label>
+                                            {field.field_name} {field.is_required && '*'}
+                                        </label>
+                                        
+                                        {field.field_type === 'Text' && (
+                                            <input type="text" 
+                                                   value={formData[field.field_name] || ''}
+                                                   onChange={(e) => setFormData({...formData, [field.field_name]: e.target.value})} />
+                                        )}
+                                        
+                                        {field.field_type === 'Number' && (
+                                            <input type="number" 
+                                                   value={formData[field.field_name] || ''}
+                                                   onChange={(e) => setFormData({...formData, [field.field_name]: e.target.value})} />
+                                        )}
+                                        
+                                        {field.field_type === 'Dropdown' && (
+                                            <select value={formData[field.field_name] || ''}
+                                                    onChange={(e) => setFormData({...formData, [field.field_name]: e.target.value})}>
+                                                <option value="">Select...</option>
+                                                {field.dropdown_options.map(opt => (
+                                                    <option key={opt} value={opt}>{opt}</option>
+                                                ))}
+                                            </select>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            <button onClick={handleSave}>{editingId ? 'Update' : 'Create'}</button>
+                            <button onClick={() => {setIsCreating(false); setEditingId(null);}} className="secondary">Cancel</button>
+                        </div>
+                    )}
+                    
+                    <h3 style={{marginTop: '30px', marginBottom: '15px'}}>All Machines</h3>
+                    {machines.map(machine => (
+                        <div key={machine.id} className="machine-record">
+                            {Object.entries(machine.data).map(([key, value]) => (
+                                <div key={key} className="record-field">
+                                    <span className="record-label">{key}:</span>
+                                    <span className="record-value">{value}</span>
+                                </div>
+                            ))}
+                            <div style={{marginTop: '10px'}}>
+                                <button onClick={() => handleEdit(machine)} className="secondary">Edit</button>
+                                <button onClick={() => handleDelete(machine.id)} className="danger">Delete</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+        
+        function PredictTab({ machines, fields, showMessage }) {
+            const [selectedMachine, setSelectedMachine] = useState(null);
+            const [prediction, setPrediction] = useState(null);
+            const [loading, setLoading] = useState(false);
+            
+            const handlePredict = async () => {
+                if (!selectedMachine) {
+                    showMessage('Please select a machine', 'error');
+                    return;
+                }
+                
+                setLoading(true);
+                try {
+                    const response = await fetch(`${API_URL}/predict`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(selectedMachine.data)
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        setPrediction(data);
+                        showMessage('Prediction completed!', 'success');
+                    } else {
+                        showMessage('Error: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    showMessage('Error: ' + error.message, 'error');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            
+            const getRiskClass = (riskLevel) => {
+                if (riskLevel.includes('Low')) return 'risk-low';
+                if (riskLevel.includes('Medium')) return 'risk-medium';
+                return 'risk-high';
+            };
+            
+            return (
+                <div>
+                    <h2>📊 Risk Prediction</h2>
+                    
+                    <div className="card">
+                        <h3>Select Machine & Run Prediction</h3>
+                        
+                        <div className="form-group">
+                            <label>Select Machine</label>
+                            <select onChange={(e) => {
+                                const id = parseInt(e.target.value);
+                                const machine = machines.find(m => m.id === id);
+                                setSelectedMachine(machine);
+                                setPrediction(null);
+                            }}>
+                                <option value="">-- Choose a Machine --</option>
+                                {machines.map(m => (
+                                    <option key={m.id} value={m.id}>
+                                        {m.data['Machine Name'] || `Machine ${m.id}`}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        {selectedMachine && (
+                            <div style={{background: '#f9f9f9', padding: '15px', borderRadius: '5px', marginBottom: '15px'}}>
+                                <h4>Machine Details:</h4>
+                                {Object.entries(selectedMachine.data).map(([key, value]) => (
+                                    <div key={key} style={{padding: '5px 0'}}>
+                                        <strong>{key}:</strong> {value}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        
+                        <button onClick={handlePredict} disabled={!selectedMachine || loading}>
+                            {loading ? '⏳ Analyzing...' : '🔍 Run Prediction'}
+                        </button>
+                    </div>
+                    
+                    {prediction && (
+                        <div className="prediction-result">
+                            <div className="result-label">📈 Prediction Result:</div>
+                            <div className={getRiskClass(prediction.risk_level)}>
+                                Risk Level: {prediction.risk_level}
+                            </div>
+                            <div style={{marginTop: '15px', fontSize: '0.9em', color: '#666'}}>
+                                <strong>Features Used:</strong>
+                                <br />
+                                Temperature: {prediction.features_used.Temperature}°C
+                                <br />
+                                Pressure: {prediction.features_used.Pressure} psi
+                                <br />
+                                Vibration: {prediction.features_used.Vibration}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
